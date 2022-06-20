@@ -7,9 +7,9 @@
 Пример успешного подключения к серверу по сертификату
 
 
-admon@pop-os:~$ ssh root@192.168.1.44
+<admon@pop-os:~$ ssh root@192.168.1.44
 Activate the web console with: systemctl enable --now cockpit.socket
-Last login: Mon Jun 20 12:16:29 2022 from 192.168.1.101
+Last login: Mon Jun 20 12:16:29 2022 from 192.168.1.101>
 
 
 
@@ -24,6 +24,6 @@ Last login: Mon Jun 20 12:16:29 2022 from 192.168.1.101
 
 
 <sed -i "s|PasswordAuthentication no|${PasswordAuthentication yes}|"  /etc/ssh/sshd_config
-sed -i '$a PasswordAuthentication no' /etc/ssh/sshd_config >
+sed -i '$a PasswordAuthentication no' /etc/ssh/sshd_config>
 
 
