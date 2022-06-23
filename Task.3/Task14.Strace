@@ -1,0 +1,24 @@
+STRACE USAGE EXAMPLES
+
+
+1.To connect to the application.
+To connect to the program, you need to know the PID of our process.
+
+sudo strace -p 31796
+
+2.TRACKING THE RUN TIME
+To display the execution time of each system call, use the -t option:
+
+strace -t uname
+
+3.FILTERING SYSTEM CALLS
+With the -e option, you can apply various filters to help you find the problem more easily.
+We can display only stat calls by passing the trace=stat option to the -e option:
+
+sudo strace -e trace=stat nautilus
+
+4.FILTERING BY THE PATH
+If you are interested in all operations on the desired file, you can filter by it using the -P option.
+For example, I'm wondering if the lscpu utility actually accesses the /proc/cpuinfo file to find out information about the processor:
+
+strace -P /proc/cpuinfo lscpu
