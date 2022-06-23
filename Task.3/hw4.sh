@@ -3,9 +3,9 @@
 declare -a RECORD_NAMES=("rd" "admon1.com")
 AUTH_EMAIL="bond.007.911@mail.ru"
 AUTH_KEY="1f37bc77ed733808e4e6c505e57eea82eb025"
-ZONE_NAME="Your_zone_name"
-IP_FILE="/tmp/CloudFlare_IP" 
-PROXIED=true
+
+
+
 
 
 
@@ -21,10 +21,9 @@ fi
 
 
 
-# Get the current public IP address
+
 ACTUAL_IP=$(curl --silent https://api.ipify.org) || exit 1
 
-#If the public ip has not changed, nothing needs to be done, exit.
 if [ "$ACTUAL_IP" = "$IP_FROM_FILE" ]; then
     echo "IP didn't change"
     exit 0
