@@ -13,7 +13,7 @@ Last login: Mon Jun 20 12:16:29 2022 from 192.168.1.101
 
 
 
-# 2.Creating a unit to load RAM.
+# 2.Creating a unit to load RAM..
 
 1. Create a unit example my_mem.service.
 2. We write a script example my_mem.
