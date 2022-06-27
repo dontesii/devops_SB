@@ -35,10 +35,14 @@ admon@pop-os:~/Downloads/log20170630$ grep 'user' log20170630.csv
 
 
 8. Find how many index.htm hits were at 30.06.2017 14:00
-
+stat 
+ find . -newer
 
 9. Find how many index.htm hits were at 30.06.2017 17:00-18:00
 
 10. Show the number of times each IP shows up in the log – using sort and uniq utilities
+
+netstat -a -l -t -n | sort -n
+
 
 11. Count all 13.94.212.jdf IP hits us
