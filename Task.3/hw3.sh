@@ -1,32 +1,64 @@
-#!/bin/bash 
+#!/usr/bin/env bash
 
-auth_email='bond.007.911@mail.ru'
-auth_key='1f37bc77ed733808e4e6c505e57eea82eb025'
-zone_id='1e3c80ff28de72305180a86398f3d264'
-api_token='KbpJp9xNI9souGm8tehQmOMSERPrqHLLSX9acXxR'
+DNS="admon.com"
+Zone_ID="1e3c80ff28de72305180a86398f3d264"
+API_TOKEN="KbpJp9xNI9souGm8tehQmOMSERPrqHLLSX9acXxR"
+PROXY="false"
+ttl=120
 
+ip=$(curl -s -X GET https://api.ipify.org)
+echo "Current IP is $ip"
 
+if which nslookup >/dev/null; then
+DNS_ip=$(nslookup ${DNS} 1.1.1.1 | awk '/Address/ { print $2 }' | sed -n '2p')
+is_proxed="${PROXY}"
+fi
 
-
-#record_ip4=$(
-#  $curl -X GET "https://api.cloudflare.com/client/v4/zones/$zone_identifier/dns_records?name=$record_name&type=A" \
-#    -H "X-Auth-Email: $auth_email" \
-#    -H "X-Auth-Key: $auth_key" \
-#    -H "Content-Type: application/json" \
-#    | $jq '.result[0].content' --raw-output
-#)
-
-
-#ip=$(curl -s -X GET https://checkip.amazonaws.com)
-#echo "Current IP is $ip"
-#if host $dnsrecord 1.1.1.1 | grep "has address" | grep "$ip"; then
-#  echo "$dnsrecord is currently set to $ip; no changes needed"
-#  exit
-#fi
+#curl -s -X GET "${URL}/${DNS_ZONE}/DNS?type=A" -H "Authorization: Bearer ${API_TOKEN}" \
+#-H "Content-Type: application/json"|jq '.result[]|{id,name,type,content,ttl}'
 
 
-`curl -X POST "https://api.cloudflare.com/client/v4/zones/1e3c80ff28de72305180a86398f3d264/dns_records" \
- -H "Authorization: Bearer KbpJp9xNI9souGm8tehQmOMSERPrqHLLSX9acXxR"\ 
- -H "Content-Type: application/json" \ 
- --data 
- '{"type":"A","name":"admon2.com","content":"127.0.0.1","ttl":120,"priority":10,"proxied":false}'`
+
+#Create DNS record
+#recordA_ip=$(curl -X POST "https://api.cloudflare.com/client/v4/zones/$DNS_ZONE/dns_records" \
+#     -H "X-Auth-Email: $EMAIL_ADDRESS" \
+#     -H "X-Auth-Key: $AUTH_KEY" \
+#     -H "Content-Type: application/json" \
+#     --data '{"type":"A","name":"new32","content":"127.0.0.53","ttl":120,"priority":10,"proxied":false}' )
+#  if [[ $recordA_ip == *"\"success\":false"* ]]; then
+#        message="DNS Create FAILED."
+#        echo -e "$message"
+#        exit 1 
+#    else
+#        message="DNS CREATE SUCCESS "    
+#    fi
+
+
+echo " DNS record of ${DNS} is: ${ip}. Trying to update..."
+
+cloudflare_record_info=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$Zone_ID/dns_records?name=$DNS" \
+-H "Authorization: Bearer $API_TOKEN" \
+-H "Content-Type: application/json")
+if [[ ${cloudflare_record_info} == *"\"success\":false"* ]]; then
+echo ${cloudflare_record_info}
+echo "Error! Can't get ${DNS} record inforamiton from cloudflare API"
+exit 0
+fi
+
+### Get the dns record id from response
+cloudflare_DNS_id=$(echo ${cloudflare_record_info} | grep -o '"id":"[^"]*' | cut -d'"' -f4)
+
+### Push new dns record information to cloudflare's api
+update_DNS=$(curl -s -X PUT "https://api.cloudflare.com/client/v4/zones/$Zone_ID/DNS/$cloudflare_DNS_id" \
+-H "Authorization: Bearer $API_TOKEN" \
+-H "Content-Type: application/json" \
+--data "{\"type\":\"A\",\"name\":\"$DNS\",\"content\":\"$ip\",\"ttl\":$ttl,\"PROXY\":$PROXY}")
+if [[ ${update_DNS} == *"\"success\":false"* ]]; then
+echo ${update_DNS}
+echo "Error! Update Failed"
+exit 0
+fi
+
+echo "= Success!"
+echo "= $DNS DNS Record Updated To: $ip, ttl: $ttl, PROXY: $PROXY"
+
