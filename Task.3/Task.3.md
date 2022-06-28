@@ -1,7 +1,7 @@
 1. Change owner of log file to your current user using chown
 
-admon@pop-os:~/Downloads/log20170630$ chown admon log20170630.csv
-admon@pop-os:~/Downloads/log20170630$ ls -l
+admon@pop-os:chown admon:admon log20170630.csv
+admon@pop-os: ls -l
 итого 2662616
 -rw------- 1 admon admon 2726513049 Jan  9  2018 log20170630.csv
 
@@ -39,6 +39,10 @@ admon@pop-os:~/Downloads/log20170630$ grep 'user' log20170630.csv
 
 9. Find how many index.htm hits were at 30.06.2017 17:00-18:00
 
+
 10. Show the number of times each IP shows up in the log – using sort and uniq utilities
 
+awk '{print $1}' data.txt | sort | uniq
+
 11. Count all 13.94.212.jdf IP hits us
+
