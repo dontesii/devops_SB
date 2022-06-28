@@ -1,11 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-NS="admon.com"
-Zone_ID="1e3c80ff28de72305180a86398f3d264"
-API_TOKEN="KbpJp9xNI9souGm8tehQmOMSERPrqHLLSX9acXxR"
-PROXY="false"
-ttl=120
-what_ip="internal"
 
 
 ip=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
