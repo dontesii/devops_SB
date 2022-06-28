@@ -1,6 +1,0 @@
-  GNU nano 2.9.8                            my_mem                                      
-
-#!/bin/sh
-firefox &
-chromium-browser &
-
