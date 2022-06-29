@@ -97,11 +97,11 @@ getdents64(3, 0x55e571d10ab0 /* 0 entries */, 32768) = 0#reads several linux_dir
 close(3)                                = 0
 newfstatat(1, "", {st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0x1), ...}, AT_EMPTY_PATH) = 0#lower system call
 write(1, "system@d15fb88a819842d4af0709e2a"..., 82system@d15fb88a819842d4af0709e2a5d9b37c-0000000000000001-0005e1525d4e4037.journal
-) = 82#записывает до подсчета байтов из буфера, на который указывает buf , в файл, на который ссылается файловый дескриптор fd 
+) = 82#writes up to counting bytes from the buffer pointed to by buf to the file referenced by the file descriptor fd
 write(1, "system@d15fb88a819842d4af0709e2a"..., 82system@d15fb88a819842d4af0709e2a5d9b37c-0000000000014716-0005e1dd465b1432.journal
-) = 82#записывает до подсчета байтов из буфера, на который указывает buf , в файл, на который ссылается файловый дескриптор fd 
-write(1, "system.journal\n", 15system.journal
-)        = 15#записывает до подсчета байтов из буфера, на который указывает buf , в файл, на который ссылается файловый дескриптор fd 
+) = 82#writes up to counting bytes from the buffer pointed to by buf to the file referenced by the file descriptor fd
+write(1, "system.journal\n", 15 system.journal
+) = 15# writes up to counting bytes from the buffer pointed to by buf to the file referenced by the file descriptor fd
 write(1, "user-1000@d9ea745e235d40e8bd4d39"..., 85user-1000@d9ea745e235d40e8bd4d394ee1cecf3e-0000000000000898-0005e1525e64e5c6.journal
 ) = 85
 write(1, "user-1000@d9ea745e235d40e8bd4d39"..., 85user-1000@d9ea745e235d40e8bd4d394ee1cecf3e-0000000000014718-0005e1dd468102e2.journal
