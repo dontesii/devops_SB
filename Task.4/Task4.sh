@@ -1,6 +1,5 @@
 #!/bin/bash
-source /home/Task4.conf
-	
+
 sudo sh -c "echo 'nameserver=adelaide.ns.cloudflare.com' >> /etc/resolv.conf"
 
 ip=$(ifconfig enp0s3 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
@@ -43,4 +42,4 @@ exit 0
 fi
 
 echo "= Success!"
-echo "= $record_name DNS Record Updated To: $ip, ttl: 120, PROXY: false"
+echo "= $record_name DNS Record Updated To: $ip, ttl: 120, PROXY: false"[root@localhost bin]# 
