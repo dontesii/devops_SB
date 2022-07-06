@@ -28,7 +28,7 @@ pipeline {
         stage('Results') {
             steps {
                  git branch: 'Task63', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
-                      sh("git tag -a some_tag -m 'Verified by CI/CD'")
+                      sh("git tag -a Ver.1 -m 'Verified by CI/CD1'")
                       sh('git push git@github.com:dontesii/devops_SB.git --tags')  
                     
             }
