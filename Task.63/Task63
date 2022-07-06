@@ -9,18 +9,19 @@ pipeline {
 
                 // Run SH.script.
                 sh 'chmod +x /var/jenkins_home/workspace/GitCloneRepo2/Task4.sh'
-                sh '/var/jenkins_home/workspace/GitCloneRepo2/Task4.sh testfqdn'             }
+                sh '/var/jenkins_home/workspace/GitCloneRepo2/Task4.sh testfqdn'             
+            }
                   post {
                 success {
                         sh '''  curl -X DELETE "https://api.cloudflare.com/client/v4/zones/1e3c80ff28de72305180a86398f3d264/dns_records/6547c26b2dd0489ab107cbeafe5ee4df" \\
                          -H "X-Auth-Email: ${EXAMPLE_CREDS_USR}" \\
                          -H "X-Auth-Key:   ${EXAMPLE_CREDS_PSW}" \\
                          -H "Content-Type: application/json"'''
-                }
-                  }
-             }
-}
-       stage('Results') {
+                     }
+                  } stage('Results') {
                 git checkout Task4
                 git commit - am 'Verified by CI/CD '
-       }
+                }
+             }
+}
+      
