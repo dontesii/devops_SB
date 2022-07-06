@@ -1,5 +1,5 @@
 #!/bin/bash
-source /usr/local/bin/Task4.conf
+source /var/jenkins_home/workspace/GitCloneRepo2/Task.4/Task4.conf
 
 record_name=$1
 echo "record_name ${record_name}"
@@ -8,8 +8,8 @@ fqdn="$record_name.$cloudflare_domain"
 echo "fqdn ${fqdn} "
 
 sudo sh -c "echo 'nameserver=adelaide.ns.cloudflare.com' >> /etc/resolv.conf"
-
-ip=$(ifconfig enp0s3 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
+ip=$(hostname -I)
+#ip=$(ifconfig enp0s3 | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1')
 echo "Current IP is $ip"
 
 #Create DNS record
@@ -50,3 +50,9 @@ fi
 
 echo "= Success!"
 echo "= $record_name DNS Record Updated To: $ip, ttl: 120, PROXY: false"
+
+numb_id=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$DNS_ZONE/dns_records?type=A&name=$cloudflare_record_info&content=$ip&proxied=false&page=1&per_page=100&order=type&direction=desc&match=all"      
+    -H "X-Auth-Email: $EMAIL_ADDRESS"     
+    -H "X-Auth-Key: $AUTH_KEY"      
+    -H "Content-Type: application/json")
+echo ${numb_id}
