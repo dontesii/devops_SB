@@ -28,9 +28,12 @@ pipeline {
         stage('Results') {
             steps {
                  git branch: 'Task63', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
-                      sh("git tag -a Ver.1 -m 'Verified by CI/CD1'")
+                      sh("git tag -a Ver.18 -m 'Verified by CI/CD'")
                       sh('git push git@github.com:dontesii/devops_SB.git --tags')  
-                    
+                      sh 'scp Task4.sh root@192.168.1.44:/home '
+                      sh 'ssh root@192.168.1.44 /home/Task4.sh vm01'
+                      
+
             }
        }
     }
