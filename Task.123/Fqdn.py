@@ -8,11 +8,7 @@ import file1
 
 from file1 import * 
 
-email="bond.007.911@mail.ru"
-dns_zone="1e3c80ff28de72305180a86398f3d264"
-auto_key="1f37bc77ed733808e4e6c505e57eea82eb025"
-ttl=120
-api_token="kWpyavK6L6mMpRE8H1Do14CUaWVRy_Sjh4PVg0lG"
+
 
 
 fqdn = input("enter fqdn- ")
