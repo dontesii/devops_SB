@@ -14,15 +14,15 @@ pipeline {
                 sh 'aws configure set default.output json'
                 script {
                     try {
-                        sh 'aws ec2 create-key-pair --key-name MyKeyPair1'
+                        sh 'aws ec2 create-key-pair --key-name MyKeyPair'
                     } catch (Exception e) {
                         echo 'key  generated'
                     }
                }
-
                 script {
                     ami_id = sh (
-                        script: 'aws ec2 describe-images --owners amazon --filters \'Name=name,Values=amzn2-ami-kernel-5.10-hvm-2.0.20220606.1-x86_64-gp2\' --query "Images[*].[ImageId]" --output text',
+                        script: 'aws ec2 describe-images --owners amazon --filters 
+                        \'Name=name,Values=amzn2-ami-kernel-5.10-hvm-2.0.20220606.1-x86_64-gp2\' --query "Images[*].[ImageId]" --output text',
                         returnStdout: true
                     ).trim()
                    echo "ami_id: ${ImageId}"
@@ -34,13 +34,15 @@ pipeline {
                     echo "vpc_id: ${VpcId}"
 
                     sg_id = sh (
-                        script: "aws ec2 describe-security-groups --filters Name=vpc-id,Values=\"${vpc_id}\" --query \"SecurityGroups[*].[GroupId]\" --output text | head -n1",
+                        script: "aws ec2 describe-security-groups --filters Name=vpc-id,Values=\"${vpc_id}\" 
+                        --query \"SecurityGroups[*].[GroupId]\" --output text | head -n1",
                         returnStdout: true
                     ).trim()
                     echo "sg_id: ${GroupId}"
 
                     subnet_id = sh (
-                        script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=\"${vpc_id}\" --query \"Subnets[*].[SubnetId]\" --output text | head -n1",
+                        script: "aws ec2 describe-subnets --filters Name=vpc-id,Values=\"${vpc_id}\" --query 
+                        \"Subnets[*].[SubnetId]\" --output text | head -n1",
                         returnStdout: true
                     ).trim()
                      echo "subnet_id: ${SubnetId}"
@@ -67,30 +69,24 @@ pipeline {
         stage('Configuring') {
             steps {
                 sh "aws ec2 create-tags --resources \"${instance_id}\" --tags Key=Owner,Value=DmitryC"
-
                 script {
                     allocation_id = sh (
                         script: "aws ec2 allocate-address | jq -r .AllocationId",
                         returnStdout: true
                     ).trim()
                      echo "allocation_id: ${AllocationId}"
-
                     sleep(time:30,unit:"SECONDS")
-
                     association_id = sh (
                         script: "aws ec2 associate-address --instance-id \"${instance_id}\" --allocation-id \"${allocation_id}\" | jq -r .AssociationId",
                         returnStdout: true
                     ).trim()
                     echo "association_id: ${allocation_id}"
                 }
-
             }
-
             post {
                 success {
                     sh 'echo "Configuring: all fine"'
                 }
-
                 failure {
                     sh 'echo "Configuring: fail"'
                 }
@@ -104,12 +100,10 @@ pipeline {
                 sh "aws ec2 terminate-instances --instance-ids \"${instance_id}\""
                 sh "aws ec2 delete-tags --resources \"${instance_id}\" --tags Key=Owner"
             }
-
             post {
                 success {
                     sh 'echo "Delete: all fine"'
                 }
-
                 failure {
                      sh 'echo "Delete: fail"'
                 }
