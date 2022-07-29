@@ -1,0 +1,27 @@
+- name: deploy mysql
+  hosts: dbservice
+  tasks:
+  - name: install pkgs
+    yum:
+      name: "{{ item }}"
+      state: present
+    with_items:
+    - mysql
+    - mysql-server
+    - MySQL-python 
+  - name: start service
+    service:
+      name: mysqld
+      state: started
+      enabled: true
+  - name: Create a new database
+    mysql_db:
+      name: myapp
+      state: present
+  - name: create a new user
+    mysql_user:
+      name: yzy
+      host: '%'
+      password: 12345
+      priv: 'yzybbs.*:ALL,GRANT'
+      state: present
