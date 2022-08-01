@@ -1,0 +1,23 @@
+- name: deploy web
+  hosts: webservice
+  tasks:
+  - name: install pkgs
+    yum:
+      name: "{{item}}"
+      state: present
+    with_items:
+      - httpd
+      - php
+      - php-mysql
+  - name: config
+    copy:
+      src: /root/B1_yzy/file/httpd.conf
+      dest: /etc/httpd/conf/httpd.conf
+      owner: root
+      group: root
+      mode: 0644
+  - name: start service
+    service:
+      name: httpd
+      state: started
+      enabled: true
