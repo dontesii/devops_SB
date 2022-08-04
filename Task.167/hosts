@@ -1,10 +1,15 @@
-[redhat-servers]
-192.168.0.44
+[DB_servers]
+192.168.1.124
 
+[APP_servers]
+192.168.1.125
 
-[debian-servers]
-192.168.0.45
-192.168.0.46
+[LB_servers]
+192.168.1.125
 
+[Deploy:children]
+DB_servers
+APP_servers
+LB_servers
 
 

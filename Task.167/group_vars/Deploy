@@ -1,0 +1,4 @@
+---
+ansible_user                    : ubuntu
+ansible_ssh_pass                : 123
+

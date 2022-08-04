@@ -1,0 +1,20 @@
+---
+- name: Ensure MySQL databases are present.
+  mysql_db:
+    name: "{{ item.name }}"
+    collation: "{{ item.collation | default('utf8_general_ci') }}"
+    encoding: "{{ item.encoding | default('utf8') }}"
+    state: "{{ item.state | default('present') }}"
+    target: "{{ item.target | default(omit) }}"
+  with_items: "{{ mysql_databases }}"
+
+- name: copy sql dump file
+  ansible.builtin.copy:
+    src: table.sql
+    dest: /home/dan
+
+- name: Restore database
+  community.mysql.mysql_db:
+    name: myapp
+    state: import
+    target: /home/dan/table.sql

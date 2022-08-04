@@ -1,0 +1,62 @@
+---
+    - name: Install base needed apt-packages
+      apt:
+        pkg:
+          - git 
+          - python2-minimal
+          - curl 
+          - virtualenv 
+          - python2-dev 
+          - libmysqlclient-dev 
+          - gcc
+        state: latest
+
+   - name: Get installed pip version
+    command: "{{ pip_executable }} --version"
+    register: pip_version_output
+    ignore_errors: yes
+    changed_when: false
+
+  - name: Download get-pip.py
+  vars:
+      pip_version_url: "{{ (pip_get_pip_version == 'latest') | ternary('', pip_get_pip_version) }}"
+      required_vars:
+          - pip_get_pip_version
+  get_url:
+      url: 'https://bootstrap.pypa.io/pip/{{ pip_version_url }}/get-pip.py'
+      dest: /tmp/get-pip.py
+  when: (pip_version_output is failed) or not pip_version_output.stdout is search(pip_version)
+
+# Install pip if it's not already installed, or if
+# the desired versions of pip aren't installed
+# The regular expression extracts '9.0' out of '9.0.*'
+  - name: Install pip
+    command: "{{ ansible_python_interpreter if ansible_python_interpreter is defined else 'python' }} get-pip.py pip=={{ pip_version }}"
+    when: "(pip_version_output is failed) or not pip_version_output.stdout is search('pip ' + pip_version)"
+    args:
+      chdir: /tmp
+
+
+   - name: Clone a github repository
+     git:
+       repo: https://github.com/TerebDan/DevOps-Trainee.git
+       dest: /home/ubuntu/django_app
+       clone: yes
+       update: yes
+       version: accu154    
+
+- name: Create Python virtual env and install packages inside the virtual env
+  pip:
+    name: 
+    - django==1.4 
+    - mysqlclient
+    virtualenv: /home/dan/venv
+    virtualenv_command: virtualenv
+    virtualenv_site_packages: no
+    virtualenv_python: python2
+
+- name: Start app
+  ansible.builtin.shell: . /home/ubuntu/venv/bin/activate && python /home/ubuntu/django_app/manage.py runserver 0.0.0.0:8000 &>/dev/null & 
+
+
+
