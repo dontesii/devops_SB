@@ -1,0 +1,107 @@
+pipeline {
+    agent any
+    environment {
+        SUDO_PASS = credentials('PRIVATE')
+    }
+    stages {
+        stage('Build') {
+            steps {
+                git branch: 'Task4', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
+                dir('Task167') {
+                    sh 'ansible-playbook Task.167.yml -i hosts.ini --private-key $PRIVATE'
+                }
+            }
+
+            post {
+                success {
+                    sh 'echo "Build: all fine"'
+                }
+                failure {
+                    sh 'echo "Build: fail"'
+                }
+            }
+        }
+
+        stage('2.Test the setup') {
+            parallel {
+
+                stage('2.1 Test LB server') {
+                    steps {
+                        script {
+                            sh(script: "nc -z -v 192.168.1.126  80 | grep succeeded ", returnStdout: true)
+                        }
+                    }
+                }
+
+                stage('2.2 Test DB server') {
+                    steps {
+                        script {
+                            sh(script: "nc -z -v 192.168.1.124  3306 | grep succeeded", returnStdout: true)
+                        }
+                    }
+                }
+
+                stage('2.3Test APP server') {
+                    steps {
+                        script {
+                            sh(script: "nc -z -v 192.168.1.125  8000 | grep succeeded", returnStdout: true)
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('3. Test the application') {
+            parallel {
+
+                stage('3.1 Test index.html') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://192.168.1.125 \
+                                -o /dev/null", returnStdout: true).trim()
+                            if (status != "200") {
+                                error("index.html error")
+                            }
+                        }
+                    }
+                }
+
+                stage('3.2 Test dbread') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://192.168.1.125/dbread \
+                                -o /dev/null", returnStdout: true).trim()
+                            if (status != "200") {
+                                error("dbread error")
+                            }
+                        }
+                    }
+                }
+
+                stage('3.3 Test appserver') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://192.168.1.125/appserver \
+                                -o /dev/null", returnStdout: true).trim()
+                            if (status != "200") {
+                                error("appserver error")
+                            }
+                        }
+                    }
+                }
+
+                stage('3.4 Test serverid') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://192.168.1.125/serverid \
+                                -o /dev/null", returnStdout: true).trim()
+                            if (status != "200") {
+                                error("serverid error")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
