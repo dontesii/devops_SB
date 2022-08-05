@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 
-import email
 import os
 import requests
 import socket
-def main():
+
+  def main():
 
 
-
-#fqdn = input("enter fqdn- ")
 
 if len (sys.argv) > 3:
-            print ("Ошибка. Слишком много параметров.")
+            print ("Error. Too many parameters.")
             sys.exit (1)
       elif len(sys.argv) == 2:
         fqd_name = sys.argv[1]
