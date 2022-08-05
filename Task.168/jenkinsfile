@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                git branch: 'Task4', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
+                git branch: 'Task167', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
                 dir('Task167') {
                     sh 'ansible-playbook Task.167.yml -i hosts.ini --private-key $PRIVATE'
                 }
