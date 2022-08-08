@@ -3,7 +3,7 @@ provider "aws" {}
 resource "aws_instance" "Load_balancer" {
     ami = "ami-090fa75af13c156b4"
     instance_type = "t2.micro"
-
+    key_name = "MyKeyPair1"
     tags = {
         Creator = "DmitryC"
     }
@@ -12,7 +12,7 @@ resource "aws_instance" "Load_balancer" {
 resource "aws_instance" "DB_server" {
     ami = "ami-090fa75af13c156b4"
     instance_type = "t2.micro"
-
+    key_name = "MyKeyPair1"
     tags = {
         Creator = "DmitryC"
     }
@@ -21,7 +21,7 @@ resource "aws_instance" "DB_server" {
 resource "aws_instance" "APP_server" {
     ami = "ami-090fa75af13c156b4"
     instance_type = "t2.micro"
-
+    key_name = "MyKeyPair1"
     tags = {
         Creator = "DmitryC"
     }
