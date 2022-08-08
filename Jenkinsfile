@@ -52,13 +52,6 @@ pipeline {
                     equals expected: true, actual: params.destroy
                 }
            }
-        stage("Ansible") {
-            steps {
-               ansiblePlaybook become: true, becomeUser: 'root', credentialsId: 'PRIVATE', disableHostKeyChecking: true, installation: 'Ansible', inventory: 'ec2.py', playbook: 'Task.167.yml'
-            }              
-          }   
-                
-            
 
            steps {
                script {
@@ -68,6 +61,11 @@ pipeline {
                }
            }
        }
+        stage("Ansible") {
+            steps {
+               ansiblePlaybook become: true, becomeUser: 'root', credentialsId: 'PRIVATE', disableHostKeyChecking: true, installation: 'Ansible',playbook: 'Task.167.yml'
+            }
+         } 
 
         stage('Apply') {
             when {
