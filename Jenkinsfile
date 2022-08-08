@@ -12,7 +12,7 @@ pipeline {
      environment {
         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-         region = "us-east-1"
+        SUDO_PASS = credentials('PRIVATE')
     }
 
 
@@ -52,7 +52,11 @@ pipeline {
                     equals expected: true, actual: params.destroy
                 }
            }
-           
+        stage("Ansible") {
+            steps {
+               ansiblePlaybook become: true, becomeUser: 'root', credentialsId: 'PRIVATE', disableHostKeyChecking: true, installation: 'Ansible', inventory: 'ec2.py', playbook: 'Task.167.yml'
+            }              
+          }   
                 
             
 
