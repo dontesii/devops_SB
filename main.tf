@@ -50,3 +50,4 @@ resource "aws_route53_record" "app_django_1" {
   ttl     = 300
   records = [ aws_instance.APP_server.public_ip  ]
 }
+
