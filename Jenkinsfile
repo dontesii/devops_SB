@@ -61,11 +61,7 @@ pipeline {
                }
            }
        }
-        stage("Ansible") {
-            steps {
-               ansiblePlaybook become: true, becomeUser: 'root', credentialsId: 'PRIVATE', disableHostKeyChecking: true, installation: 'Ansible',playbook: 'Task.167.yml'
-            }
-         } 
+
 
         stage('Apply') {
             when {
