@@ -8,6 +8,6 @@ terraform {
 }
 
 # Configure the AWS Provider
-provider "aws" {
+provider  {
   region = "us-east-1"
 }
