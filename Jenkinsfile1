@@ -9,13 +9,13 @@ pipeline {
         stage('Terraform apply') {
             steps {
                 git branch: 'Task173', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
-                dir('Task173')
-                    string LB_IP = sh(returnStdout: true, script: "terraform output lb_server_ip").trim()
-                    string LB_DNS_NAME = sh(returnStdout: true, script: "terraform output lb_server_dns_name").trim()
-                    string DB_IP = sh(returnStdout: true, script: "terraform output db_server_ip").trim()
-                    string DB_DNS_NAME = sh(returnStdout: true, script: "terraform output db_server_dns_name").trim()
-                    string APP_IP = sh(returnStdout: true, script: "terraform output app_server_ip").trim()
-                    string APP_DNS_NAME = sh(returnStdout: true, script: "terraform output app_server_dns_name").trim()
+                dir('Task173') {
+                string LB_IP = sh(returnStdout: true, script: "terraform output lb_server_ip").trim()
+                string LB_DNS_NAME = sh(returnStdout: true, script: "terraform output lb_server_dns_name").trim()
+                string DB_IP = sh(returnStdout: true, script: "terraform output db_server_ip").trim()
+                string DB_DNS_NAME = sh(returnStdout: true, script: "terraform output db_server_dns_name").trim()
+                string APP_IP = sh(returnStdout: true, script: "terraform output app_server_ip").trim()
+                string APP_DNS_NAME = sh(returnStdout: true, script: "terraform output app_server_dns_name").trim()
                 }
             }
 
@@ -28,14 +28,15 @@ pipeline {
                 }
             }
         }
-
+        
+        
         stage('Test the setup') {
             parallel {
                 
                 stage('Test LB server') {
                     steps {
                         script {
-                            sh(script: "nc -z -v ${LB_IP}  80 | grep succeeded ", returnStdout: true)
+                            sh(script: "nmap ${LB_IP} -p 80 | grep -o open", returnStdout: true)
                         }
                     }
                 }
@@ -43,7 +44,7 @@ pipeline {
                 stage('Test DB server') {
                     steps {
                         script {
-                            sh(script: "nc -z -v ${DB_IP}  3306 | grep succeeded ", returnStdout: true)
+                            sh(script: "nmap ${DB_IP} -p 3306 | grep -o open", returnStdout: true)
                         }
                     }
                 }
@@ -51,7 +52,7 @@ pipeline {
                 stage('Test APP server') {
                     steps {
                         script {
-                            sh(script: "nc -z -v ${APP_IP}  8000 | grep succeeded ", returnStdout: true)
+                            sh(script: "nmap ${APP_IP} -p 8000 | grep -o open", returnStdout: true)
                         }
                     }
                 }
@@ -66,6 +67,7 @@ pipeline {
                         script {
                             string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME} \
                                 -o /dev/null", returnStdout: true).trim()
+                                
                             if (status != "200") {
                                 error("index.html error")
                             }
@@ -78,6 +80,7 @@ pipeline {
                         script {
                             string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME}/dbread \
                                 -o /dev/null", returnStdout: true).trim()
+                                
                             if (status != "200") {
                                 error("dbread error")
                             }
@@ -90,6 +93,7 @@ pipeline {
                         script {
                             string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME}/appserver \
                                 -o /dev/null", returnStdout: true).trim()
+                                
                             if (status != "200") {
                                 error("appserver error")
                             }
@@ -102,6 +106,7 @@ pipeline {
                         script {
                             string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME}/serverid \
                                 -o /dev/null", returnStdout: true).trim()
+                                
                             if (status != "200") {
                                 error("serverid error")
                             }
@@ -112,3 +117,4 @@ pipeline {
         }
 
     }
+}
