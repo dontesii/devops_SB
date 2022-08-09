@@ -59,16 +59,7 @@ pipeline {
                }
            }
        }
-
-        stage('AnsibleGit') {
-            steps {
-                git branch: 'Task167', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
-                dir('Task167') {
-                    sh 'ansible-playbook Task.167.yml --private-key $PRIVATE'
-                }
-            }
-
-                  stage("run ec2.py") {
+        stage("run ec2.py") {
             steps {
                 sh "chmod +x ec2.py"
                 sh "pwd"
@@ -78,8 +69,8 @@ pipeline {
 
        stage("Ansible") {
             steps {
-               ansiblePlaybook become: true, becomeUser: 'root', credentialsId: 'MyKeyPair1', disableHostKeyChecking: true, installation: 'Ansible', inventory: 'ec2.py', playbook: 'deploy.yml'
-            }              
+               ansiblePlaybook become: true, becomeUser: 'root', credentialsId: 'MyKeyPair1', disableHostKeyChecking: true, installation: 'Ansible', inventory: 'ec2.py', playbook: 'Task.167.yml'
+            }
           }
         }
 
