@@ -37,7 +37,6 @@ pipeline {
             steps {
                 sh 'terraform init -input=false'
                 sh 'terraform workspace select ${environment} || terraform workspace new ${environment}'
-
                 sh "terraform plan -input=false -out tfplan "
                 sh 'terraform show -no-color tfplan > tfplan.txt'
             }
@@ -60,21 +59,6 @@ pipeline {
                }
            }
        }
-     stage("run ec2.py") {
-            steps {
-                sh "cd /var/jenkins_home/workspace/Test2"
-                sh "chmod +x ec2.py"
-                sh "pwd"
-                sh "./ec2.py --list"
-               
-            }
-        } 
-       stage("Ansible") {
-            steps {
-               ansiblePlaybook become: true, becomeUser: 'root', credentialsId: 'MyKeyPair1', disableHostKeyChecking: true, installation: 'Ansible', inventory: 'ec2.py', playbook: 'Task.167.yml'
-            }              
-          }
-
         stage('Apply') {
             when {
                 not {
