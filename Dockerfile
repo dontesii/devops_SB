@@ -1,3 +1,3 @@
 FROM ansjen
 USER root
-RUN apt-get install -y wget
+RUN apt-get install nmap
