@@ -53,3 +53,26 @@ resource "aws_route53_record" "app_django_1" {
   records = [ aws_instance.APP_server.public_ip  ]
 }
 
+output "lb_server_dns_name" {
+  value = aws_route53_record.lb.name
+}
+
+output "lb_server_ip" {
+  value = aws_instance.Load_balancer.public_ip
+}
+
+output "db_server_dns_name" {
+  value = aws_route53_record.db1.name
+}
+
+output "db_server_ip" {
+  value = aws_instance.DB_server.public_ip
+}
+
+output "app_server_dns_name" {
+  value = aws_route53_record.app_django_1.name
+}
+
+output "app_server_ip" {
+  value = aws_instance.APP_server.public_ip
+}

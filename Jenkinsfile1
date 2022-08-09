@@ -1,120 +1,114 @@
-          pipeline {
-            agent any
-            environment {
-                SUDO_PASS = credentials('PRIVATE')
+pipeline {
+    agent any
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        SUDO_PASS = credentials('PRIVATE')
+    }
+    stages {
+        stage('Terraform apply') {
+            steps {
+                git branch: 'Task173', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
+                dir('Task173')
+                    string LB_IP = sh(returnStdout: true, script: "terraform output lb_server_ip").trim()
+                    string LB_DNS_NAME = sh(returnStdout: true, script: "terraform output lb_server_dns_name").trim()
+                    string DB_IP = sh(returnStdout: true, script: "terraform output db_server_ip").trim()
+                    string DB_DNS_NAME = sh(returnStdout: true, script: "terraform output db_server_dns_name").trim()
+                    string APP_IP = sh(returnStdout: true, script: "terraform output app_server_ip").trim()
+                    string APP_DNS_NAME = sh(returnStdout: true, script: "terraform output app_server_dns_name").trim()
+                }
             }
-            stages {
-                stage('Build') {
+
+            post {
+                success {
+                    sh 'echo "Terraform apply: all fine"'
+                }
+                failure {
+                    sh 'echo "Terraform apply: fail"'
+                }
+            }
+        }
+
+        stage('Test the setup') {
+            parallel {
+                
+                stage('Test LB server') {
                     steps {
-                        git branch: 'Task167', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
-                        dir('Task167') {
-                            sh 'ansible-playbook Task.167.yml -i hosts.ini --private-key $PRIVATE'
-                        }
-                    }
-        
-                    post {
-                        success {
-                            sh 'echo "Build: all fine"'
-                        }
-                        failure {
-                            sh 'echo "Build: fail"'
+                        script {
+                            sh(script: "nc -z -v ${LB_IP}  80 | grep succeeded ", returnStdout: true)
                         }
                     }
                 }
-                stage("run ec2.py") {
+
+                stage('Test DB server') {
                     steps {
-                        sh "cd /var/jenkins_home/workspace/Test2"
-                        sh "chmod +x ec2.py"
-                        sh "python ec2.py --list"
-                       
+                        script {
+                            sh(script: "nc -z -v ${DB_IP}  3306 | grep succeeded ", returnStdout: true)
+                        }
                     }
-                } 
-               stage("Ansible") {
+                }
+
+                stage('Test APP server') {
                     steps {
-                       ansiblePlaybook become: true, becomeUser: 'root', credentialsId: 'MyKeyPair1', disableHostKeyChecking: true, installation: 'Ansible', inventory: 'ec2.py', playbook: 'Task.167.yml'
-                    }              
-                  }       
-        
-                stage('2.Test the setup') {
-                    parallel {
-        
-                        stage('2.1 Test LB server') {
-                            steps {
-                                script {
-                                    sh(script: "nc -z -v 192.168.1.126  80 | grep succeeded ", returnStdout: true)
-                                }
-                            }
+                        script {
+                            sh(script: "nc -z -v ${APP_IP}  8000 | grep succeeded ", returnStdout: true)
                         }
-        
-                        stage('2.2 Test DB server') {
-                            steps {
-                                script {
-                                    sh(script: "nc -z -v 192.168.1.124  3306 | grep succeeded", returnStdout: true)
-                                }
-                            }
-                        }
-        
-                        stage('2.3Test APP server') {
-                            steps {
-                                script {
-                                    sh(script: "nc -z -v 192.168.1.125  8000 | grep succeeded", returnStdout: true)
-                                }
+                    }
+                }
+            }
+        }
+
+        stage('Test the application') {
+            parallel {
+
+                stage('Test index.html') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME} \
+                                -o /dev/null", returnStdout: true).trim()
+                            if (status != "200") {
+                                error("index.html error")
                             }
                         }
                     }
                 }
-        
-                stage('3. Test the application') {
-                    parallel {
-        
-                        stage('3.1 Test index.html') {
-                            steps {
-                                script {
-                                    string status = sh(script: "curl -sLI -w '%{http_code}' http://192.168.1.125 \
-                                        -o /dev/null", returnStdout: true).trim()
-                                    if (status != "200") {
-                                        error("index.html error")
-                                    }
-                                }
+
+                stage('Test dbread') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME}/dbread \
+                                -o /dev/null", returnStdout: true).trim()
+                            if (status != "200") {
+                                error("dbread error")
                             }
                         }
-        
-                        stage('3.2 Test dbread') {
-                            steps {
-                                script {
-                                    string status = sh(script: "curl -sLI -w '%{http_code}' http://192.168.1.125/dbread \
-                                        -o /dev/null", returnStdout: true).trim()
-                                    if (status != "200") {
-                                        error("dbread error")
-                                    }
-                                }
+                    }
+                }
+
+                stage('Test appserver') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME}/appserver \
+                                -o /dev/null", returnStdout: true).trim()
+                            if (status != "200") {
+                                error("appserver error")
                             }
                         }
-        
-                        stage('3.3 Test appserver') {
-                            steps {
-                                script {
-                                    string status = sh(script: "curl -sLI -w '%{http_code}' http://192.168.1.125/appserver \
-                                        -o /dev/null", returnStdout: true).trim()
-                                    if (status != "200") {
-                                        error("appserver error")
-                                    }
-                                }
-                            }
-                        }
-        
-                        stage('3.4 Test serverid') {
-                            steps {
-                                script {
-                                    string status = sh(script: "curl -sLI -w '%{http_code}' http://192.168.1.125/serverid \
-                                        -o /dev/null", returnStdout: true).trim()
-                                    if (status != "200") {
-                                        error("serverid error")
-                                    }
-                                }
+                    }
+                }
+
+                stage('Test serverid') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME}/serverid \
+                                -o /dev/null", returnStdout: true).trim()
+                            if (status != "200") {
+                                error("serverid error")
                             }
                         }
                     }
                 }
             }
         }
+
+    }
