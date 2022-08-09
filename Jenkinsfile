@@ -62,9 +62,10 @@ pipeline {
        }
      stage("run ec2.py") {
             steps {
+                sh "cd /var/jenkins_home/workspace/Test2/"
                 sh "chmod +x ec2.py"
                 sh "pwd"
-                sh "/var/jenkins_home/workspace/Test2/ec2.py --list"
+                sh "./ec2.py --list"
                
             }
         } 
