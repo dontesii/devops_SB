@@ -64,7 +64,7 @@ pipeline {
             steps {
                 sh "chmod +x ec2.py"
                 sh "pwd"
-                sh "./ec2.py --list"
+                sh "/var/jenkins_home/workspace/Test2/ec2.py --list"
                
             }
         } 
