@@ -1,0 +1,40 @@
+---
+- name: Install epel-release
+  yum:
+      name: epel-release
+      state: latest
+      update_cache: true
+
+- name: Install nginx
+  yum:
+      name: nginx
+      state: latest
+      update_cache: true
+
+- name: Permit traffic in default zone for http service
+  ansible.posix.firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+
+- name: reload service firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Disable SELinux
+  ansible.posix.selinux:
+    state: disabled      
+
+
+- name: Replace nginx.conf
+  template:
+    src=templates/nginx.conf
+    dest=/etc/nginx/nginx.conf
+
+- name: Start nginx
+  service: name=nginx state=started enabled=yes
+
+
+
+    
