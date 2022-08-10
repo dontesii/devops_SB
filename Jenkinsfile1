@@ -36,9 +36,8 @@ pipeline {
                 stage('Test LB server') {
                     steps {
                         script {
-                             sh(script: "pwd "   )
-                            //sh(script: "ping -c 3 ${LB_IP}  | grep -o received", returnStdout: true)
-                            //sh(script: "nmap ${LB_IP} -p 80 | grep -o open", returnStdout: true)
+
+                            sh(script: "nmap ${LB_IP} -p 80 | grep -o open", returnStdout: true)
                         }
                     }
                 }
@@ -46,9 +45,7 @@ pipeline {
                 stage('Test DB server') {
                     steps {
                         script {
-                            sh(script: "pwd "   )
-                            //sh(script: "ping -c 3 ${DB_IP}    | grep -o received", returnStdout: true)
-                            //sh(script: "nmap ${DB_IP} -p 3306 | grep -o open", returnStdout: true)
+                            sh(script: "nmap ${DB_IP} -p 3306 | grep -o open", returnStdout: true)
                             
                         }
                     }
@@ -57,9 +54,7 @@ pipeline {
                 stage('Test APP server') {
                     steps {
                         script {
-                            sh(script: "pwd "   )
-                            //sh(script: "ping -c 3 ${APP_IP}    | grep -o received", returnStdout: true)
-                            //sh(script: "nmap ${APP_IP} -p 8000 | grep -o open", returnStdout: true)
+                            sh(script: "nmap ${APP_IP} -p 8000 | grep -o open", returnStdout: true)
                         }
                     }
                 }
