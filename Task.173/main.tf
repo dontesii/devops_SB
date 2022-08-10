@@ -7,7 +7,7 @@ resource "aws_instance" "Load_balancer" {
     instance_type = "t2.micro"
     key_name = "MyKeyPair1"
     tags = {
-        Creator = "DmitryC"
+        Creator = "DmitryC1"
     }
 }
 
@@ -16,7 +16,7 @@ resource "aws_instance" "DB_server" {
     instance_type = "t2.micro"
     key_name = "MyKeyPair1"
     tags = {
-        Creator = "DmitryC"
+        Creator = "DmitryC1"
     }
 }
 
@@ -25,7 +25,7 @@ resource "aws_instance" "APP_server" {
     instance_type = "t2.micro"
     key_name = "MyKeyPair1"
     tags = {
-        Creator = "DmitryC"
+        Creator = "DmitryC1"
     }
 }
 
