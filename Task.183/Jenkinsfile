@@ -22,8 +22,8 @@ pipeline {
                  script{
                         dir("terraform")
                         {
-                            git branch: 'Task.183', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
-                            sh 'cd /Task.183'
+                            git branch: 'Task.173', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
+                            sh 'cd /Task.173'
                             sh 'terraform init'
                             sh 'terraform apply -auto-approve'
                         }
