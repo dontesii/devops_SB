@@ -20,5 +20,5 @@
   become: yes
 
   roles:
-    - role: APP_django 
-  tags: APP_django 
+    - role: APP_django
+  tags: APP_django
