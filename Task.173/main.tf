@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_instance" "Load_balancer" {
-    ami = "ami-0c956e207f9d113d5"
+    ami = "ami-090fa75af13c156b4"
     instance_type = "t2.micro"
     key_name = "MyKeyPair1"
     security_groups = [ aws_security_group.lb_rules.name ]
@@ -14,7 +14,7 @@ resource "aws_instance" "Load_balancer" {
 }
 
 resource "aws_instance" "DB_server" {
-    ami = "ami-065deacbcaac64cf2"
+    ami = "ami-090fa75af13c156b4"
     instance_type = "t2.micro"
     key_name = "MyKeyPair1"
     security_groups = [ aws_security_group.db_rules.name ]
@@ -25,7 +25,7 @@ resource "aws_instance" "DB_server" {
 }
 
 resource "aws_instance" "APP_server" {
-    ami = "ami-065deacbcaac64cf2"
+    ami = "ami-090fa75af13c156b4"
     instance_type = "t2.micro"
     key_name = "MyKeyPair1"
     security_groups = [ aws_security_group.app_rules.name ]
