@@ -1,0 +1,193 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'environment', defaultValue: 'terraform', description: 'Workspace/environment file to use for deployment')
+        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
+        booleanParam(name: 'destroy', defaultValue: false, description: 'Destroy Terraform build?')
+
+    }
+
+
+     environment {
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        SUDO_PASS = credentials('PRIVATE')
+    }
+
+
+    stages {
+        stage('checkout') {
+            steps {
+                 script{
+                        dir("terraform")
+                        {
+                            git branch: 'Task173', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:dontesii/devops_SB.git'
+                            //sh 'cp -u Task.173/main.tf main.tf'
+                            sh 'cd Task.173/'
+                            dir('Task.173') {
+                            sh 'terraform init'
+                            string LB_IP = sh(returnStdout: true, script: "terraform output lb_server_ip").trim()
+                            string LB_DNS_NAME = sh(returnStdout: true, script: "terraform output lb_server_dns_name").trim()
+                            string DB_IP = sh(returnStdout: true, script: "terraform output db_server_ip").trim()
+                            string DB_DNS_NAME = sh(returnStdout: true, script: "terraform output db_server_dns_name").trim()
+                            string APP_IP = sh(returnStdout: true, script: "terraform output app_server_ip").trim()
+                            string APP_DNS_NAME = sh(returnStdout: true, script: "terraform output app_server_dns_name").trim()
+                           }
+                        }
+                    }
+                }
+            }
+
+        stage('Plan') {
+            when {
+                not {
+                    equals expected: true, actual: params.destroy
+                }
+            }
+            steps {
+                sh 'terraform init -input=false'
+                sh 'terraform workspace select ${environment} || terraform workspace new ${environment}'
+                sh "terraform plan -input=false -out tfplan "
+                sh 'terraform show -no-color tfplan > tfplan.txt'
+            }
+        }
+        stage('Approval') {
+           when {
+               not {
+                   equals expected: true, actual: params.autoApprove
+               }
+               not {
+                    equals expected: true, actual: params.destroy
+                }
+           }
+
+           steps {
+               script {
+                    def plan = readFile 'tfplan.txt'
+                    input message: "Do you want to apply the plan?",
+                    parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
+               }
+           }
+        }
+        stage('Apply') {
+            when {
+                not {
+                    equals expected: true, actual: params.destroy
+                }
+            }
+            steps {
+                sh "terraform apply -input=false tfplan"
+            }
+        }
+        stage('Ansible apply') {
+            steps {
+                dir('Task.177') {
+                ansiblePlaybook credentialsId: 'jenkins_ssh_key', installation: 'Ansible', playbook: 'Task.178.yml'
+                }
+            }
+
+            post {
+                success {
+                    sh 'echo "Ansible apply: all fine"'
+                }
+                failure {
+                    sh 'echo "Ansible apply: fail"'
+                }
+            }
+        }
+    
+
+        stage('Test the setup') {
+            parallel {
+
+                stage('Test LB server') {
+                    steps {
+                        script {
+                            sh(script: "nmap ${LB_IP} -p 80 | grep -o open", returnStdout: true)
+                        }
+                    }
+                }
+
+                stage('Test DB server') {
+                    steps {
+                        script {
+                            sh(script: "nmap ${DB_IP} -p 3306 | grep -o open", returnStdout: true)
+                        }
+                    }
+                }
+
+                stage('Test APP server') {
+                    steps {
+                        script {
+                            sh(script: "nmap ${APP_IP} -p 8000 | grep -o open", returnStdout: true)
+                        }
+                    }
+                }
+            }
+
+            post {
+                failure {
+                    sh 'echo "Terraform destroy"'
+                    dir('temp') {
+                        sh 'terraform destroy -auto-approve'
+                    }
+                }
+            }
+        }
+
+        stage('Test the application') {
+            parallel {
+
+                stage('Test index.html') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME} \
+                                -o /dev/null", returnStdout: true).trim()
+
+                            if (status != "200") {
+                                error("index.html error")
+                            }
+                        }
+                    }
+                }
+
+                stage('Test dbread') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME}/dbread \
+                                -o /dev/null", returnStdout: true).trim()
+
+                            if (status != "200") {
+                                error("dbread error")
+                            }
+                        }
+                    }
+                }
+
+                stage('Test appserver') {
+                    steps {
+                        script {
+                            string status = sh(script: "curl -sLI -w '%{http_code}' http://${LB_DNS_NAME}/appserver \
+                                -o /dev/null", returnStdout: true).trim()
+
+                            if (status != "200") {
+                                error("appserver error")
+                            }
+                        }
+                    }
+                }
+
+        stage('Destroy') {
+            when {
+                equals expected: true, actual: params.destroy
+            }
+        
+        steps {
+           sh "terraform destroy --auto-approve"
+        }
+    }
+  }
+        }
+    }
+}
