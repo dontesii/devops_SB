@@ -1,4 +1,6 @@
-provider "aws" {}
+provider "aws" {
+  region = "us-east-1"
+}
 
 resource "aws_instance" "Load_balancer" {
     ami = "ami-0c956e207f9d113d5"
