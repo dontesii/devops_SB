@@ -1,0 +1,24 @@
+---
+- name: Config DB
+  hosts: DB_servers
+  become: yes
+
+  roles:
+    - role: DB
+  tags: DB
+
+- name: Config LB
+  hosts: LB_servers
+  become: yes
+
+  roles:
+    - role: LB
+  tags: LB
+
+- name: Deploy app
+  hosts: APP_servers
+  become: yes
+
+  roles:
+    - role: APP_django 
+  tags: APP_django 
